@@ -1,0 +1,274 @@
+// ================= LOGIN =================
+const loginForm = document.getElementById("loginForm");
+
+if (loginForm) {
+  loginForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const contact = document.getElementById("contact").value;
+
+    localStorage.setItem("username", username);
+    localStorage.setItem("contact", contact);
+
+    window.location.href = "menu.html";
+  });
+}
+// ================= FOOD DATA =================
+const foods = [
+  { 
+    name: "Pani Puri", 
+    rate: 30, 
+    recipe: "Stuff puri with potato, add spicy pani & tamarind chutney.", 
+    image: "images/panipuri.jpg" 
+  },
+  { 
+    name: "Vada Pav", 
+    rate: 20, 
+    recipe: "Fry potato vada, place in pav with chutney.", 
+    image: "images/vadapav.jpg" 
+  },
+  { 
+    name: "Pav Bhaji", 
+    rate: 50, 
+    recipe: "Cook mashed veggies with spices, serve with butter pav.", 
+    image: "images/pavbhaji.jpg" 
+  },
+  { 
+    name: "Chole Bhature", 
+    rate: 80, 
+    recipe: "Cook chickpeas curry, serve with deep fried bhature.", 
+    image: "images/chole.jpg" 
+  },
+  { 
+    name: "Masala Dosa", 
+    rate: 60, 
+    recipe: "Spread dosa batter, add potato masala, fold & serve.", 
+    image: "images/dosa.jpg" 
+  },
+  { 
+    name: "Samosa", 
+    rate: 15, 
+    recipe: "Fill pastry with potato mix, deep fry till crispy.", 
+    image: "images/samosa.jpg" 
+  },
+  { 
+    name: "Bhel Puri", 
+    rate: 25, 
+    recipe: "Mix puffed rice, chutneys, onions & sev.", 
+    image: "images/bhel.jpg" 
+  },
+  { 
+    name: "Aloo Tikki", 
+    rate: 30, 
+    recipe: "Shape potato patties, shallow fry till golden.", 
+    image: "images/alootikki.jpg" 
+  },
+  { 
+    name: "Kathi Roll", 
+    rate: 70, 
+    recipe: "Wrap roti with spicy filling and sauces.", 
+    image: "images/kathi.jpg" 
+  },
+  { 
+    name: "Momos", 
+    rate: 50, 
+    recipe: "Fill dough with veggies/meat, steam & serve hot.", 
+    image: "images/momos.jpg" 
+  },
+  { 
+    name: "Jalebi", 
+    rate: 40, 
+    recipe: "Fry batter in spiral, soak in sugar syrup.", 
+    image: "images/jalebi.jpg" 
+  },
+  { 
+    name: "Dahi Puri", 
+    rate: 35, 
+    recipe: "Fill puri with curd, chutney & spices.", 
+    image: "images/dahipuri.jpg" 
+  },
+  { 
+    name: "Chicken Kebab", 
+    rate: 120, 
+    recipe: "Marinate chicken, grill till smoky & juicy.", 
+    image: "images/kebab.jpg" 
+  },
+  { 
+    name: "Egg Roll", 
+    rate: 50, 
+    recipe: "Cook egg on roti, add fillings & roll.", 
+    image: "images/eggroll.jpg" 
+  },
+  { 
+    name: "Chicken Shawarma", 
+    rate: 100, 
+    recipe: "Wrap grilled chicken with sauces in flatbread.", 
+    image: "images/shawarma.jpg" 
+  },
+  { 
+    name: "Fish Fry", 
+    rate: 120, 
+    recipe: "Marinate fish, coat & deep fry till crispy.", 
+    image: "images/fish.jpg" 
+  },
+  { 
+    name: "Keema Pav", 
+    rate: 90, 
+    recipe: "Cook minced meat masala, serve with pav.", 
+    image: "images/keema.jpg" 
+  },
+  { 
+    name: "Paneer Tikka", 
+    rate: 110, 
+    recipe: "Marinate paneer, grill till charred.", 
+    image: "images/paneer.jpg" 
+  },
+  { 
+    name: "Pakora", 
+    rate: 30, 
+    recipe: "Dip veggies in batter, deep fry till crisp.", 
+    image: "images/pakora.jpg" 
+  },
+  { 
+    name: "Falooda", 
+    rate: 60, 
+    recipe: "Layer milk, sev, jelly & ice cream.", 
+    image: "images/falooda.jpg" 
+  }
+];
+
+// ================= CART =================
+let cart = [];
+function displayCart() {
+  const cartDiv = document.getElementById("cart");
+  cartDiv.innerHTML = "";
+
+  if (cart.length === 0) {
+    cartDiv.innerHTML = `<p>Cart is empty</p>`;
+    return;
+  }
+
+  let total = 0;
+
+  cart.forEach((item) => {
+    const itemTotal = item.rate * item.qty;
+    total += itemTotal;
+
+    cartDiv.innerHTML += `
+      <div>
+        ${item.name} x${item.qty} - ₹${itemTotal}
+      </div>
+    `;
+  });
+
+  cartDiv.innerHTML += `<hr><strong>Total: ₹${total}</strong>`;
+}
+// ================= LOAD MENU =================
+function loadMenu() {
+  const menuDiv = document.getElementById("menu");
+  if (!menuDiv) return;
+  menuDiv.innerHTML = "";
+
+  foods.forEach((food, index) => {
+    menuDiv.innerHTML += `
+      <div class="food-card">
+        <img src="${food.image}" alt="${food.name}">
+        <h3>${food.name}</h3>
+        <p>${food.recipe}</p>
+        <p>₹${food.rate}</p>
+        <button onclick="addToCart(${index})">Add</button>
+      </div>
+    `;
+  });
+}
+
+// ================= ADD TO CART =================
+function addToCart(index) {
+  const item = foods[index];
+
+  const existing = cart.find(i => i.name === item.name);
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({ name:item.name,rate:item.rate,qty:1 });
+  }
+
+  displayCart();
+}
+
+// ================= DISPLAY CART =================
+function displayCart() {
+  const cartDiv = document.getElementById("cart");
+  cartDiv.innerHTML = "";
+
+  let total = 0;
+
+  cart.forEach((item) => {
+    const itemTotal = item.rate * item.qty;
+    total += itemTotal;
+
+    cartDiv.innerHTML += `
+      <div class="cart-item">
+        <p><strong>${item.name}</strong></p>
+        <p>Qty: ${item.qty}</p>
+        <p>₹${itemTotal}</p>
+      </div>
+    `;
+  });
+
+  cartDiv.innerHTML += `<h3>Total: ₹${total}</h3>`;
+}
+// ================= INCREASE / DECREASE =================
+function increaseQty(i) {
+  cart[i].qty++;
+  displayCart();
+}
+
+function decreaseQty(i) {
+  if (cart[i].qty > 1) {
+    cart[i].qty--;
+  } else {
+    cart.splice(i, 1);
+  }
+  displayCart();
+}
+
+// ================= PLACE ORDER =================
+function placeOrder() {
+ if (cart.length === 0) {
+    alert("⚠️ Cart is empty!");
+    return;
+  } 
+  const username = localStorage.getItem("username");
+  const contact = localStorage.getItem("contact");
+
+  const total = cart.reduce((sum, item) => sum + item.rate * item.qty, 0);
+
+  fetch("http://localhost:5000/order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username,
+      contact,
+      items: cart,
+      total
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
+    alert("✅ Order placed successfully!");
+    cart = [];
+    displayCart();
+  });
+}
+
+// ================= AUTO LOAD =================
+window.onload = function () {
+  if (document.getElementById("menu")) {
+    loadMenu();
+  }
+};
