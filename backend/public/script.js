@@ -139,35 +139,13 @@ const foods = [
 ];
 
 // ================= CART =================
-let cart = [];
-function displayCart() {
-  const cartDiv = document.getElementById("cart");
-  cartDiv.innerHTML = "";
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  if (cart.length === 0) {
-    cartDiv.innerHTML = `<p>Cart is empty</p>`;
-    return;
-  }
-
-  let total = 0;
-
-  cart.forEach((item) => {
-    const itemTotal = item.rate * item.qty;
-    total += itemTotal;
-
-    cartDiv.innerHTML += `
-      <div>
-        ${item.name} x${item.qty} - ₹${itemTotal}
-      </div>
-    `;
-  });
-
-  cartDiv.innerHTML += `<hr><strong>Total: ₹${total}</strong>`;
-}
 // ================= LOAD MENU =================
 function loadMenu() {
   const menuDiv = document.getElementById("menu");
   if (!menuDiv) return;
+
   menuDiv.innerHTML = "";
 
   foods.forEach((food, index) => {
@@ -192,20 +170,28 @@ function addToCart(index) {
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ name:item.name,rate:item.rate,qty:1 });
+    cart.push({ name: item.name, rate: item.rate, qty: 1 });
   }
 
+  localStorage.setItem("cart", JSON.stringify(cart));
   displayCart();
 }
 
 // ================= DISPLAY CART =================
 function displayCart() {
   const cartDiv = document.getElementById("cart");
+  if (!cartDiv) return;
+
   cartDiv.innerHTML = "";
 
   let total = 0;
 
-  cart.forEach((item) => {
+  if (cart.length === 0) {
+    cartDiv.innerHTML = "<p>Cart is empty</p>";
+    return;
+  }
+
+  cart.forEach(item => {
     const itemTotal = item.rate * item.qty;
     total += itemTotal;
 
@@ -220,33 +206,22 @@ function displayCart() {
 
   cartDiv.innerHTML += `<h3>Total: ₹${total}</h3>`;
 }
-// ================= INCREASE / DECREASE =================
-function increaseQty(i) {
-  cart[i].qty++;
-  displayCart();
-}
-
-function decreaseQty(i) {
-  if (cart[i].qty > 1) {
-    cart[i].qty--;
-  } else {
-    cart.splice(i, 1);
-  }
-  displayCart();
-}
 
 // ================= PLACE ORDER =================
 function placeOrder() {
- if (cart.length === 0) {
+  if (cart.length === 0) {
     alert("⚠️ Cart is empty!");
     return;
-  } 
+  }
+
+  console.log("🚀 Button clicked");
+
   const username = localStorage.getItem("username");
   const contact = localStorage.getItem("contact");
 
   const total = cart.reduce((sum, item) => sum + item.rate * item.qty, 0);
 
-  fetch("http://localhost:5000/order", {
+  fetch("http://localhost:5000/order", {   // ✅ IMPORTANT
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -259,10 +234,17 @@ function placeOrder() {
     })
   })
   .then(res => res.json())
-  .then(() => {
-    alert("✅ Order placed successfully!");
+  .then(data => {
+    console.log("Saved:", data);
+    alert("🎉 Order placed successfully!");
+
     cart = [];
+    localStorage.removeItem("cart");
     displayCart();
+  })
+  .catch(err => {
+    console.error("ERROR:", err);
+    alert("❌ Error placing order");
   });
 }
 
@@ -271,4 +253,5 @@ window.onload = function () {
   if (document.getElementById("menu")) {
     loadMenu();
   }
+  displayCart();
 };
