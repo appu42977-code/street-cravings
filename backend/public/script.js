@@ -191,7 +191,7 @@ function displayCart() {
     return;
   }
 
-  cart.forEach(item => {
+  cart.forEach((item,index) => {
     const itemTotal = item.rate * item.qty;
     total += itemTotal;
 
@@ -200,12 +200,20 @@ function displayCart() {
         <p><strong>${item.name}</strong></p>
         <p>Qty: ${item.qty}</p>
         <p>₹${itemTotal}</p>
+
+        <button onclick="removeFromCart(${index})">Remove</button>
       </div>
     `;
   });
 
   cartDiv.innerHTML += `<h3>Total: ₹${total}</h3>`;
 }
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    displayCart();
+}
+
 
 // ================= PLACE ORDER =================
 function placeOrder() {

@@ -1,19 +1,26 @@
 // ================= LOGIN =================
-const loginForm = document.getElementById("loginForm");
+document.addEventListener("DOMContentLoaded", function () {
+    const loginForm = document.getElementById("loginForm");
 
-if (loginForm) {
-  loginForm.addEventListener("submit", function(e) {
-    e.preventDefault();
+    if (loginForm) {
+        loginForm.addEventListener("submit", function (e) {
+            e.preventDefault();
 
-    const username = document.getElementById("username").value;
-    const contact = document.getElementById("contact").value;
+            const username = document.getElementById("username").value;
+            const contact = document.getElementById("contact").value;
 
-    localStorage.setItem("username", username);
-    localStorage.setItem("contact", contact);
+            if (!username || !contact) {
+                alert("Please fill all fields");
+                return;
+            }
 
-    window.location.href = "menu.html";
-  });
-}
+            localStorage.setItem("username", username);
+            localStorage.setItem("contact", contact);
+
+            window.location.href = "menu.html";
+        });
+    }
+});
 // ================= FOOD DATA =================
 const foods = [
   { 
