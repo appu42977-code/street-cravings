@@ -1,26 +1,19 @@
 // ================= LOGIN =================
-document.addEventListener("DOMContentLoaded", function () {
-    const loginForm = document.getElementById("loginForm");
+const loginForm = document.getElementById("loginForm");
 
-    if (loginForm) {
-        loginForm.addEventListener("submit", function (e) {
-            e.preventDefault();
+if (loginForm) {
+  loginForm.addEventListener("submit", function(e) {
+    e.preventDefault();
 
-            const username = document.getElementById("username").value;
-            const contact = document.getElementById("contact").value;
+    const username = document.getElementById("username").value;
+    const contact = document.getElementById("contact").value;
 
-            if (!username || !contact) {
-                alert("Please fill all fields");
-                return;
-            }
+    localStorage.setItem("username", username);
+    localStorage.setItem("contact", contact);
 
-            localStorage.setItem("username", username);
-            localStorage.setItem("contact", contact);
-
-            window.location.href = "menu.html";
-        });
-    }
-});
+    window.location.href = "menu.html";
+  });
+}
 // ================= FOOD DATA =================
 const foods = [
   { 
@@ -198,7 +191,7 @@ function displayCart() {
     return;
   }
 
-  cart.forEach(item => {
+  cart.forEach((item,index) => {
     const itemTotal = item.rate * item.qty;
     total += itemTotal;
 
@@ -207,28 +200,30 @@ function displayCart() {
         <p><strong>${item.name}</strong></p>
         <p>Qty: ${item.qty}</p>
         <p>₹${itemTotal}</p>
+
+        <button onclick="removeFromCart(${index})">Remove</button>
       </div>
     `;
   });
 
   cartDiv.innerHTML += `<h3>Total: ₹${total}</h3>`;
 }
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    displayCart();
+}
+
 
 // ================= PLACE ORDER =================
 function placeOrder() {
-  if (cart.length === 0) {
-    alert("⚠️ Cart is empty!");
-    return;
-  }
-
-  console.log("🚀 Button clicked");
-
   const username = localStorage.getItem("username");
   const contact = localStorage.getItem("contact");
 
-  const total = cart.reduce((sum, item) => sum + item.rate * item.qty, 0);
+  const items = cart.map(item => item.name);
+  const total = cart.reduce((sum, item) => sum + item.rate, 0);
 
-  fetch("http://localhost:5000/order", {   // ✅ IMPORTANT
+  fetch("http://localhost:5000/order", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -236,21 +231,20 @@ function placeOrder() {
     body: JSON.stringify({
       username,
       contact,
-      items: cart,
+      items,
       total
     })
   })
-  .then(res => res.json())
+  .then(res => res.text())
   .then(data => {
-    console.log("Saved:", data);
-    alert("🎉 Order placed successfully!");
-
+    alert("✅ Order Placed Successfully!");
     cart = [];
     localStorage.removeItem("cart");
-    displayCart();
+    location.reload();
+    console.log(data);
   })
   .catch(err => {
-    console.error("ERROR:", err);
+    console.error(err);
     alert("❌ Error placing order");
   });
 }
@@ -262,11 +256,3 @@ window.onload = function () {
   }
   displayCart();
 };
-import path from "path";
-
-// Serve frontend files
-app.use(express.static("public"));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve("public/index.html"));
-});

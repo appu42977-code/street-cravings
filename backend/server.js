@@ -1,39 +1,42 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config()
+const path = require("path");
 
-const Order = require("./models/Order");
+const db = require("./db"); // MySQL connection
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../frontend")));
 
-// ✅ MongoDB Atlas Connection
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log("DB Error:", err));
 // Test Route
 app.get("/", (req, res) => {
-  res.send("Backend Running ✅");
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
-// Save Order
-app.post("/order", async (req, res) => {
-  try {
-    const newOrder = new Order(req.body);
-    await newOrder.save();
+// ✅ SAVE ORDER (MySQL)
+app.post("/order", (req, res) => {
+  console.log("API HIT ✅");   // 🔍 Debug
+  console.log(req.body);      // 🔍 Check data coming
 
-    res.json({ message: "✅ Order Saved Successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "❌ Failed to save order" });
-  }
+  const { username, contact, items, total } = req.body;
+
+  const sql = "INSERT INTO orders (username, contact, items, total) VALUES (?, ?, ?, ?)";
+
+  db.query(sql, [username, contact, JSON.stringify(items), total], (err, result) => {
+    if (err) {
+      console.log("DB Error:", err);
+      return res.status(500).send("❌ Failed to save order");
+    } else {
+      console.log("order saved")
+      res.send("✅ Order Saved Successfully");
+    }
+  });
 });
 
 // Start Server
-app.listen(process.env.PORT || 5000, () => {
-  console.log("🚀 Server running");
+app.listen(5000, () => {
+  console.log("🚀 Server running on http://localhost:5000");
 });
