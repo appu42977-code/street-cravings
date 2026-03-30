@@ -223,7 +223,7 @@ function placeOrder() {
   const items = cart.map(item => item.name);
   const total = cart.reduce((sum, item) => sum + item.rate, 0);
 
-  fetch("http://localhost:5000/order", {
+  fetch("https://street-cravings-n3uy.onrender.com/order ", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
